@@ -1,0 +1,41 @@
+
+name: Сборка игры Лесник
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'Lesnik_Android_Project.zip'
+      - '.github/workflows/build.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Получить файлы
+        uses: actions/checkout@v4
+
+      - name: Установить Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Установить Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Распаковать игру
+        run: |
+          unzip -o Lesnik_Android_Project.zip -d .
+          ls -la Lesnik_Android
+
+      - name: Собрать APK
+        run: gradle -p Lesnik_Android assembleDebug
+
+      - name: Сохранить APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Lesnik-APK
+          path: Lesnik_Android/app/build/outputs/apk/debug/app-debug.apk
